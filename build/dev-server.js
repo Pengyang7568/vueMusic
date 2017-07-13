@@ -21,6 +21,42 @@ var autoOpenBrowser = !!config.dev.autoOpenBrowser
 var proxyTable = config.dev.proxyTable
 
 var app = express()
+
+var apiRouter = express.Router()
+var axios = require('axios')
+//推荐页面，要轮播数据
+apiRouter.get('/getRecommend',function(req,res){
+  var url = 'https://c.y.qq.com/musichall/fcgi-bin/fcg_yqqhomepagerecommend.fcg'
+  axios.get(url,{
+    headers:{
+      origin:'https://m.y.qq.com',
+      referer:'https://m.y.qq.com/'
+    },
+    params: req.query
+  }).then((response) => {
+    res.json(response.data)
+  }).catch((error) => {
+    console.log(error)
+  })
+})
+//歌单页面
+apiRouter.get('/getDiscList',function(req,res){
+  var url = 'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg'
+  axios.get(url,{
+  headers:{
+    host: 'c.y.qq.com',
+    referer:'https://y.qq.com/portal/playlist.html'
+  },
+  params: req.query
+  }).then((response) => {
+    res.json(response.data)
+  }).catch((error) => {
+    console.log(error)
+  })
+})
+
+app.use('/api',apiRouter)
+
 var compiler = webpack(webpackConfig)
 
 var devMiddleware = require('webpack-dev-middleware')(compiler, {
