@@ -24,7 +24,7 @@ var app = express()
 
 var apiRouter = express.Router()
 var axios = require('axios')
-//推荐页面，要轮播数据
+//  推荐页面，要轮播数据
 apiRouter.get('/getRecommend',function(req,res){
   var url = 'https://c.y.qq.com/musichall/fcgi-bin/fcg_yqqhomepagerecommend.fcg'
   axios.get(url,{
@@ -39,7 +39,7 @@ apiRouter.get('/getRecommend',function(req,res){
     console.log(error)
   })
 })
-//歌单页面
+//  歌单页面
 apiRouter.get('/getDiscList',function(req,res){
   var url = 'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg'
   axios.get(url,{
@@ -50,6 +50,30 @@ apiRouter.get('/getDiscList',function(req,res){
   params: req.query
   }).then((response) => {
     res.json(response.data)
+  }).catch((error) => {
+    console.log(error)
+  })
+})
+//  歌词
+apiRouter.get('/getLyric', function(req, res) {
+  var url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
+  axios.get(url,{
+  headers:{
+    host: 'c.y.qq.com',
+    referer:'https://y.qq.com/portal/player.html'
+  },
+  params: req.query
+  }).then((response) => {
+    var ret = response.data
+    if (typeof ret === 'string') {
+      var reg = /^\w+\(({[^()]+})\)$/
+      var matches = ret.match(reg)
+      if (matches) {
+        ret = JSON.parse(matches[1])
+      }
+    }
+    console.log(ret)
+    res.json(ret)
   }).catch((error) => {
     console.log(error)
   })
