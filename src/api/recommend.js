@@ -1,5 +1,6 @@
 const axios = require('axios')
-import {commonParam} from './config'
+import {commonParam, options} from './config'
+import jsonp from 'common/utils/jsonp'
 
 export function getDiscList () {
   const url = '/api/getDiscList'
@@ -40,4 +41,17 @@ export function getRecommend () {
   }).catch((err) => {
     return Promise.reject(err)
   })
+}
+
+export function getSongList(disstid) {
+  const url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
+  const data = Object.assign({}, commonParam, {
+    type: 1,
+    json: 1,
+    utf8: 1,
+    onlysong: 0,
+    disstid: disstid,
+    format: 'jsonp'
+  })
+  return jsonp(url, data, options)
 }

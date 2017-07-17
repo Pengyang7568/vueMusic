@@ -24,13 +24,14 @@ var app = express()
 
 var apiRouter = express.Router()
 var axios = require('axios')
+
 //  推荐页面，要轮播数据
-apiRouter.get('/getRecommend',function(req,res){
+apiRouter.get('/getRecommend', function (req, res) {
   var url = 'https://c.y.qq.com/musichall/fcgi-bin/fcg_yqqhomepagerecommend.fcg'
-  axios.get(url,{
-    headers:{
-      origin:'https://m.y.qq.com',
-      referer:'https://m.y.qq.com/'
+  axios.get(url, {
+    headers: {
+      origin: 'https://m.y.qq.com',
+      referer: 'https://m.y.qq.com/'
     },
     params: req.query
   }).then((response) => {
@@ -39,30 +40,66 @@ apiRouter.get('/getRecommend',function(req,res){
     console.log(error)
   })
 })
+
 //  歌单页面
-apiRouter.get('/getDiscList',function(req,res){
-  var url = 'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg'
-  axios.get(url,{
-  headers:{
-    host: 'c.y.qq.com',
-    referer:'https://y.qq.com/portal/playlist.html'
-  },
-  params: req.query
+apiRouter.get('/getToplist', function (req, res) {
+  var url = 'https://c.y.qq.com/v8/fcg-bin/fcg_myqq_toplist.fcg'
+  axios.get(url, {
+    headers: {
+      origin: 'https://m.y.qq.com',
+      referer: 'https://m.y.qq.com/'
+    },
+    params: req.query
   }).then((response) => {
     res.json(response.data)
   }).catch((error) => {
     console.log(error)
   })
 })
+
+//  排行榜
+
+apiRouter.get('/getDiscList', function (req, res) {
+  var url = 'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg'
+  axios.get(url, {
+    headers: {
+      host: 'c.y.qq.com',
+      referer: 'https://y.qq.com/portal/playlist.html'
+    },
+    params: req.query
+  }).then((response) => {
+    res.json(response.data)
+  }).catch((error) => {
+    console.log(error)
+  })
+})
+
+//  排行榜详情
+
+apiRouter.get('/getTopListDetail', function (req, res) {
+  var url = 'https://c.y.qq.com/v8/fcg-bin/fcg_v8_toplist_cp.fcg'
+  axios.get(url, {
+    headers: {
+      origin: 'https://y.qq.com',
+      referer: 'https://y.qq.com/w/toplist.html?ADTAG=myqq&from=myqq&channel=10007100&id=4&type=top'
+    },
+    params: req.query
+  }).then((response) => {
+    res.json(response.data)
+  }).catch((error) => {
+    console.log(error)
+  })
+})
+
 //  歌词
-apiRouter.get('/getLyric', function(req, res) {
+apiRouter.get('/getLyric', function (req, res) {
   var url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
-  axios.get(url,{
-  headers:{
-    host: 'c.y.qq.com',
-    referer:'https://y.qq.com/portal/player.html'
-  },
-  params: req.query
+  axios.get(url, {
+    headers: {
+      host: 'c.y.qq.com',
+      referer: 'https://y.qq.com/portal/player.html'
+    },
+    params: req.query
   }).then((response) => {
     var ret = response.data
     if (typeof ret === 'string') {
@@ -72,14 +109,13 @@ apiRouter.get('/getLyric', function(req, res) {
         ret = JSON.parse(matches[1])
       }
     }
-    console.log(ret)
     res.json(ret)
   }).catch((error) => {
     console.log(error)
   })
 })
 
-app.use('/api',apiRouter)
+app.use('/api', apiRouter)
 
 var compiler = webpack(webpackConfig)
 
@@ -94,7 +130,9 @@ var hotMiddleware = require('webpack-hot-middleware')(compiler, {
 // force page reload when html-webpack-plugin template changes
 compiler.plugin('compilation', function (compilation) {
   compilation.plugin('html-webpack-plugin-after-emit', function (data, cb) {
-    hotMiddleware.publish({ action: 'reload' })
+    hotMiddleware.publish({
+      action: 'reload'
+    })
     cb()
   })
 })
@@ -103,7 +141,9 @@ compiler.plugin('compilation', function (compilation) {
 Object.keys(proxyTable).forEach(function (context) {
   var options = proxyTable[context]
   if (typeof options === 'string') {
-    options = { target: options }
+    options = {
+      target: options
+    }
   }
   app.use(proxyMiddleware(options.filter || context, options))
 })

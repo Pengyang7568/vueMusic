@@ -1,5 +1,11 @@
 <template>
-  <scroll class="listview" :data="data" :listenScroll="listenScroll" :probeType="probeType" @scroll="scroll" ref="listView">
+  <scroll 
+        class="listview" 
+        :data="data" 
+        :listenScroll="listenScroll" 
+        :probeType="probeType" 
+        @scroll="scroll" 
+        ref="listView">
     <ul>
       <li v-for="group in data" class="list-group" ref="listGroup">
         <h2 class="list-group-title">{{group.title}}</h2>
@@ -99,6 +105,9 @@ export default {
       //  0表示无缓动
       this.scrollY = -this.listHeight[index]
       this.$refs.listView.scrollToElement(this.$refs.listGroup[index], 0)
+    },
+    refresh() {
+      this.$refs.listView.refresh()
     },
     _calculateHeight() {
       this.listHeight = []

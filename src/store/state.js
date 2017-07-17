@@ -1,6 +1,8 @@
 import {playMode} from 'common/utils/config'
 const state = {
   singer: {},
+  disc: {},
+  topList: [],
   //  播放状态
   playing: false,
   //  播放器是否全屏
