@@ -11,7 +11,7 @@ export function getTopList() {
     notice: 0,
     platform: 'h5',
     needNewCode: 1,
-    _: 1500277351590
+    _: +new Date()
   }
   return axios.get(url, {
     params: data
@@ -37,7 +37,7 @@ export function getTopListDetail(topid) {
     page: 'detail',
     type: 'top',
     topid: topid,
-    _: 1500285626753
+    _: +new Date()
   }
   return axios.get(url, {
     params: data

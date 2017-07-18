@@ -32,7 +32,7 @@ export function getRecommend () {
     notice: 0,
     platform: 'h5',
     needNewCode: 1,
-    _: 1499852902481
+    _: +new Date()
   }
   return axios.get(url, {
     params: data
