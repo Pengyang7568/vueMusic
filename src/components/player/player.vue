@@ -33,7 +33,10 @@
               <div class="playing-lyric">{{playLyric}}</div>
             </div>
           </div>
-          <scroll class="middle-r" ref="lyricList" :data="currentLyric && currentLyric.lines">
+          <scroll class="middle-r" 
+                  ref="lyricList" 
+                  :data="currentLyric && currentLyric.lines"
+          >
             <div class="lyric-wrapper">
               <div v-if="currentLyric">
                 <p ref="lyricLine"
@@ -72,7 +75,10 @@
               <i class="icon-next"></i>
             </div>
             <div class="icon icon-right">
-              <i class="icon icon-not-favorite"></i>
+              <i class="icon" 
+                 :class="getFavoriteIcon(currentSong)" 
+                 @click="toggleFavorite(currentSong)">
+              </i>
             </div>
           </div>
         </div>
@@ -92,36 +98,40 @@
           <i :class="miniIcon" class="icon-mini"></i>
           </progress-circle>
         </div>
-        <div class="control">
+        <div class="control" @click.stop="showPlaylist">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
-    <audio 
-    :src="currentSong.url" 
-    ref="audio" 
-    @canplay="ready" 
-    @error="error"
-    @timeupdate="updateTime"
-    @ended="end"
+    <playlist ref="playlist"></playlist>
+    <audio :src="currentSong.url" 
+            ref="audio" 
+            @canplay="ready" 
+            @error="error"
+            @timeupdate="updateTime"
+            @ended="end"
     ></audio>
   </div>
 </template>
 <script>
-import { mapGetters, mapMutations } from 'vuex'
-import animations from 'create-keyframe-animation'
-import {prefixStyle} from 'common/utils/dom'
-import {shuffle} from 'common/utils/util'
-import {playMode} from 'common/utils/config'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
-import Lyric from 'lyric-parser'
 import Scroll from 'base/scroll/scroll'
+import Playlist from 'components/playlist/playlist'
+
+import {prefixStyle} from 'common/utils/dom'
+import {playMode} from 'common/utils/config'
+import {playerMixin} from 'common/utils/mixin'
+
+import animations from 'create-keyframe-animation'
+import Lyric from 'lyric-parser'
+import {mapGetters, mapMutations, mapActions} from 'vuex'
 
 const transform = prefixStyle('transform')
 const transitionDuration = prefixStyle('transitionDuration')
 
 export default {
+  mixins: [playerMixin],
   data() {
     return {
       songReady: false,
@@ -149,17 +159,10 @@ export default {
     percent() {
       return this.currentTime / this.currentSong.duration
     },
-    iconMode() {
-      return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
-    },
     ...mapGetters([
       'fullScreen',
-      'playList',
-      'currentSong',
       'playing',
-      'currentIndex',
-      'mode',
-      'sequenceList'
+      'currentIndex'
     ])
   },
   created() {
@@ -174,6 +177,7 @@ export default {
     },
     ready() {
       this.songReady = true
+      this.savePlayHistory(this.currentSong)
     },
     error() {
       this.songReady = true
@@ -240,24 +244,8 @@ export default {
       }
       this.songReady = false
     },
-    changeMode() {
-      const mode = (this.mode + 1) % 3
-      this.setPlayMode(mode)
-      let list = null
-      if (mode === playMode.random) {
-        list = shuffle(this.sequenceList)
-      } else {
-        list = this.sequenceList
-      }
-      this._resetCurrentIndex(list)
-      this.setPlayList(list)
-    },
-    _resetCurrentIndex(list) {
-      console.log(list)
-      let index = list.findIndex((item) => {
-        return item.id === this.currentSong.id
-      })
-      this.setCurrentIndex(index)
+    showPlaylist() {
+      this.$refs.playlist.show()
     },
     onProgressBarChange(percent) {
       let currentTime = this.currentSong.duration * percent
@@ -418,10 +406,16 @@ export default {
       setCurrentIndex: 'SET_CURRENT_INDEX',
       setPlayMode: 'SET_PLAY_MODE',
       setPlayList: 'SET_PLAYLIST'
+    }),
+    ...mapActions({
+      savePlayHistory: 'savePlayHistory'
     })
   },
   watch: {
     currentSong(newSong, oldSong) {
+      if (!newSong.id) {
+        return
+      }
       if (oldSong.id === newSong.id) {
         return
       }
@@ -443,7 +437,8 @@ export default {
   components: {
     ProgressBar,
     ProgressCircle,
-    Scroll
+    Scroll,
+    Playlist
   }
 }
 </script>

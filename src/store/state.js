@@ -1,5 +1,5 @@
 import {playMode} from 'common/utils/config'
-import {loadSearch} from 'common/utils/cache'
+import {loadSearch, loadPlay, loadFavorite} from 'common/utils/cache'
 
 const state = {
   //  歌手
@@ -21,7 +21,11 @@ const state = {
   //  当前播放歌曲的索引
   currentIndex: -1,
   //  搜索历史
-  searchHistory: loadSearch()
+  searchHistory: loadSearch(),
+  //  播放历史
+  playHistory: loadPlay(),
+  //  收藏列表
+  favoriteList: loadFavorite()
 }
 
 export default state
